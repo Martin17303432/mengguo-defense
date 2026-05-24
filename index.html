@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>萌果守卫战</title>
+  <style>
+    :root {
+      --leaf: #66b96a;
+      --leaf-dark: #2f8a4d;
+      --sky: #dff6ff;
+      --cream: #fff7dc;
+      --rose: #ff6b8a;
+      --orange: #ffad4f;
+      --blue: #63a8ff;
+      --ink: #31413a;
+      --soft: rgba(255, 255, 255, .82);
+      --shadow: 0 18px 40px rgba(75, 132, 84, .22);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Nunito", "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 18% 18%, rgba(255, 230, 129, .45), transparent 28%),
+        radial-gradient(circle at 88% 12%, rgba(111, 196, 255, .38), transparent 24%),
+        linear-gradient(180deg, #dff8ff 0%, #efffdc 54%, #dff4bd 100%);
+      overflow-x: hidden;
+      user-select: none;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      font-family: inherit;
+      color: inherit;
+      transition: transform .14s ease, box-shadow .14s ease, filter .14s ease;
+    }
+
+    button:active { transform: translateY(2px) scale(.98); }
+    button:disabled { opacity: .48; cursor: not-allowed; filter: grayscale(.25); }
+
+    .app {
+      width: min(1180px, 100%);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 18px;
+      position: relative;
+    }
+
+    .screen {
+      display: none;
+      min-height: calc(100vh - 36px);
+      animation: screenIn .24s ease both;
+    }
+
+    .screen.active { display: grid; }
+
+    @keyframes screenIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .center-screen {
+      place-items: center;
+      text-align: center;
+    }
+
+    .hero {
+      width: min(760px, 100%);
+      padding: clamp(24px, 5vw, 46px);
+      border-radius: 32px;
+      background: rgba(255, 255, 255, .72);
+      box-shadow: var(--shadow);
+      border: 3px solid rgba(255, 255, 255, .8);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "🍓 🍊 🍉 🫐 🍌";
+      position: absolute;
+      inset: 18px 0 auto 0;
+      font-size: clamp(28px, 7vw, 58px);
+      opacity: .18;
+      letter-spacing: 12px;
+      white-space: nowrap;
+      animation: floatLine 7s ease-in-out infinite;
+    }
+
+    @keyframes floatLine {
+      0%, 100% { transform: translateX(-20px); }
+      50% { transform: translateX(22px); }
+    }
+
+    h1 {
+      margin: 18px 0 10px;
+      font-size: clamp(42px, 9vw, 86px);
+      line-height: .95;
+      letter-spacing: 0;
+      color: #fb6179;
+      text-shadow: 0 5px 0 #fff, 0 10px 24px rgba(255, 107, 138, .2);
+      position: relative;
+    }
+
+    .subtitle {
+      margin: 0 auto 26px;
+      max-width: 560px;
+      font-size: clamp(16px, 3vw, 22px);
+      line-height: 1.55;
+      color: #557064;
+      position: relative;
+    }
+
+    .btn-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      position: relative;
+    }
+
+    .primary-btn,
+    .secondary-btn,
+    .tiny-btn,
+    .item-btn,
+    .upgrade-btn {
+      min-height: 46px;
+      padding: 12px 20px;
+      border-radius: 999px;
+      font-size: 16px;
+      font-weight: 900;
+      box-shadow: 0 8px 0 rgba(49, 65, 58, .12), 0 16px 26px rgba(49, 65, 58, .12);
+    }
+
+    .primary-btn {
+      background: linear-gradient(180deg, #ffe66f, #ffb84d);
+      color: #653d00;
+    }
+
+    .secondary-btn {
+      background: #fff;
+      color: var(--leaf-dark);
+      border: 2px solid rgba(102, 185, 106, .28);
+    }
+
+    .tiny-btn {
+      min-height: 38px;
+      padding: 8px 14px;
+      font-size: 14px;
+      background: rgba(255, 255, 255, .86);
+      color: var(--leaf-dark);
+      box-shadow: 0 5px 0 rgba(49, 65, 58, .1);
+    }
+
+    .panel {
+      width: min(780px, 100%);
+      padding: 24px;
+      border-radius: 28px;
+      background: rgba(255, 255, 255, .78);
+      box-shadow: var(--shadow);
+      border: 2px solid rgba(255, 255, 255, .8);
+    }
+
+    .panel h2 {
+      margin: 0 0 16px;
+      color: var(--leaf-dark);
+      font-size: clamp(28px, 5vw, 42px);
+      letter-spacing: 0;
+    }
+
+    .rules {
+      display: grid;
+      gap: 12px;
+      text-align: left;
+      margin: 18px 0 22px;
+    }
+
+    .rule {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, .74);
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
+    .game-screen {
+      display: none;
+      grid-template-rows: auto 1fr;
+      gap: 12px;
+      min-height: calc(100vh - 36px);
+    }
+
+    .game-screen.active { display: grid; }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .stat {
+      min-height: 58px;
+      padding: 9px 10px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, .82);
+      box-shadow: 0 8px 18px rgba(48, 118, 65, .12);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .stat small {
+      display: block;
+      color: #678278;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .playfield {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr);
+      gap: 14px;
+      align-items: stretch;
+      min-height: 0;
+    }
+
+    .battle-area,
+    .board-area {
+      border-radius: 28px;
+      background: rgba(255, 255, 255, .7);
+      box-shadow: var(--shadow);
+      border: 2px solid rgba(255, 255, 255, .8);
+      overflow: hidden;
+    }
+
+    .battle-area {
+      min-height: 280px;
+      position: relative;
+      background:
+        linear-gradient(180deg, rgba(213, 246, 255, .8), rgba(236, 255, 212, .86)),
+        repeating-linear-gradient(90deg, transparent 0 8%, rgba(102, 185, 106, .06) 8% 8.5%);
+    }
+
+    .lane {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 25%;
+      border-bottom: 1px dashed rgba(83, 146, 80, .18);
+    }
+
+    .lane:nth-child(1) { top: 0; }
+    .lane:nth-child(2) { top: 25%; }
+    .lane:nth-child(3) { top: 50%; }
+    .lane:nth-child(4) { top: 75%; border-bottom: 0; }
+
+    .base {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 86px;
+      height: 120px;
+      border-radius: 24px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(180deg, #fff7c7, #d9f49c);
+      border: 3px solid rgba(87, 152, 66, .32);
+      box-shadow: 0 12px 24px rgba(73, 127, 58, .2);
+      font-size: 48px;
+      z-index: 2;
+    }
+
+    .base.damaged { animation: baseHit .32s ease; }
+
+    @keyframes baseHit {
+      0%, 100% { transform: translateY(-50%) translateX(0); filter: none; }
+      25% { transform: translateY(-50%) translateX(-7px); filter: saturate(1.7); }
+      60% { transform: translateY(-50%) translateX(5px); }
+    }
+
+    .enemy {
+      position: absolute;
+      width: 64px;
+      height: 64px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .86);
+      border: 3px solid rgba(255, 255, 255, .92);
+      box-shadow: 0 8px 18px rgba(55, 86, 56, .22);
+      font-size: 34px;
+      z-index: 4;
+      transition: filter .15s ease, transform .15s ease;
+    }
+
+    .enemy.hit { animation: enemyHit .28s ease; }
+    .enemy.frozen { box-shadow: 0 0 0 5px rgba(99, 168, 255, .22), 0 8px 18px rgba(55, 86, 56, .22); }
+
+    @keyframes enemyHit {
+      0%, 100% { filter: none; transform: translate(-50%, -50%) scale(1); }
+      35% { filter: brightness(1.5) saturate(2); transform: translate(-50%, -50%) scale(1.16) rotate(-6deg); }
+      70% { transform: translate(-50%, -50%) scale(.95) rotate(5deg); }
+    }
+
+    .hpbar {
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      bottom: -9px;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(38, 63, 45, .18);
+      overflow: hidden;
+    }
+
+    .hpbar span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #ff6b8a, #ffe66f);
+      width: 100%;
+    }
+
+    .enemy-label {
+      position: absolute;
+      top: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      font-size: 12px;
+      font-weight: 1000;
+      color: #4c665c;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .level-card {
+      position: absolute;
+      inset: 16px;
+      z-index: 8;
+      display: none;
+      place-items: center;
+      pointer-events: none;
+    }
+
+    .level-card.show { display: grid; }
+
+    .level-bubble {
+      max-width: 420px;
+      padding: 18px 22px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, .92);
+      text-align: center;
+      box-shadow: 0 16px 32px rgba(57, 102, 61, .18);
+      animation: pop .38s ease both;
+    }
+
+    .level-bubble h3 { margin: 0 0 6px; font-size: 30px; color: #fb6179; }
+    .level-bubble p { margin: 5px 0; font-weight: 900; color: #4f7660; }
+
+    @keyframes pop {
+      from { opacity: 0; transform: scale(.86); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .board-area {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 10px;
+      padding: 14px;
+      background: rgba(255, 255, 255, .78);
+    }
+
+    .items {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .item-btn {
+      min-height: 64px;
+      padding: 7px 8px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff, #eafad8);
+      color: #41624f;
+      box-shadow: 0 6px 0 rgba(49, 65, 58, .1), 0 12px 18px rgba(49, 65, 58, .1);
+      display: grid;
+      gap: 2px;
+      place-items: center;
+      font-size: 13px;
+      line-height: 1.1;
+    }
+
+    .item-btn b { font-size: 24px; line-height: 1; }
+
+    .board {
+      align-self: center;
+      justify-self: center;
+      width: min(100%, 480px);
+      aspect-ratio: 1 / 1;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      grid-template-rows: repeat(6, 1fr);
+      gap: 7px;
+      padding: 9px;
+      border-radius: 26px;
+      background: linear-gradient(180deg, #91d36d, #55b56f);
+      box-shadow: inset 0 7px 18px rgba(38, 91, 42, .22), 0 14px 26px rgba(38, 91, 42, .14);
+      touch-action: manipulation;
+    }
+
+    .cell {
+      aspect-ratio: 1 / 1;
+      display: grid;
+      place-items: center;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, .95), rgba(255, 246, 214, .9));
+      font-size: clamp(26px, 6.8vw, 46px);
+      box-shadow: inset 0 -5px 0 rgba(87, 125, 70, .08), 0 5px 10px rgba(44, 84, 55, .12);
+      position: relative;
+      transition: transform .15s ease, outline-color .15s ease, background .15s ease;
+    }
+
+    .cell.selected {
+      outline: 4px solid #ffe66f;
+      transform: scale(1.06);
+      z-index: 2;
+    }
+
+    .cell.matching { animation: vanish .34s ease both; }
+    .cell.invalid { animation: noMatch .26s ease; }
+
+    @keyframes vanish {
+      0% { transform: scale(1) rotate(0deg); opacity: 1; }
+      55% { transform: scale(1.18) rotate(-8deg); opacity: 1; }
+      100% { transform: scale(.08) rotate(18deg); opacity: 0; }
+    }
+
+    @keyframes noMatch {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    .board-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-weight: 900;
+      color: #59746a;
+    }
+
+    .energy {
+      flex: 1;
+      min-width: 150px;
+      height: 16px;
+      border-radius: 999px;
+      background: rgba(49, 65, 58, .14);
+      overflow: hidden;
+    }
+
+    .energy span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #63a8ff, #ffe66f);
+      border-radius: inherit;
+      transition: width .2s ease;
+    }
+
+    .float-text {
+      position: fixed;
+      z-index: 50;
+      pointer-events: none;
+      color: #fb6179;
+      font-weight: 1000;
+      text-shadow: 0 2px 0 #fff, 0 7px 14px rgba(0,0,0,.12);
+      animation: floatUp .86s ease-out forwards;
+    }
+
+    @keyframes floatUp {
+      from { transform: translate(-50%, 0) scale(.9); opacity: 0; }
+      20% { opacity: 1; }
+      to { transform: translate(-50%, -55px) scale(1.12); opacity: 0; }
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: none;
+      place-items: center;
+      padding: 18px;
+      background: rgba(50, 91, 55, .28);
+      backdrop-filter: blur(6px);
+    }
+
+    .modal.show { display: grid; }
+
+    .modal-card {
+      width: min(560px, 100%);
+      max-height: min(740px, calc(100vh - 28px));
+      overflow: auto;
+      padding: 24px;
+      border-radius: 30px;
+      background: rgba(255, 255, 255, .94);
+      box-shadow: 0 28px 60px rgba(31, 73, 40, .24);
+      text-align: center;
+      border: 3px solid rgba(255, 255, 255, .86);
+      animation: pop .24s ease both;
+    }
+
+    .modal-card h2 {
+      margin: 0 0 10px;
+      color: #fb6179;
+      font-size: clamp(28px, 6vw, 46px);
+      letter-spacing: 0;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 16px 0;
+    }
+
+    .result-grid div,
+    .upgrade-row {
+      border-radius: 18px;
+      background: #f3fbeb;
+      padding: 12px;
+      font-weight: 900;
+    }
+
+    .result-grid small {
+      display: block;
+      color: #70907f;
+      font-size: 12px;
+    }
+
+    .upgrade-list {
+      display: grid;
+      gap: 9px;
+      margin: 16px 0;
+      text-align: left;
+    }
+
+    .upgrade-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .upgrade-row strong {
+      display: block;
+      color: #41624f;
+      font-size: 16px;
+    }
+
+    .upgrade-row span {
+      color: #789286;
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .upgrade-btn {
+      min-width: 98px;
+      background: #ffe66f;
+      color: #654500;
+      box-shadow: 0 5px 0 rgba(88, 61, 0, .13);
+    }
+
+    .confetti {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 120;
+      overflow: hidden;
+    }
+
+    .confetti i {
+      position: absolute;
+      top: -24px;
+      font-style: normal;
+      animation: fall 1.9s ease-in forwards;
+    }
+
+    @keyframes fall {
+      to { transform: translateY(110vh) rotate(520deg); opacity: .1; }
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      transform: translateX(-50%);
+      z-index: 150;
+      padding: 12px 18px;
+      border-radius: 999px;
+      background: rgba(49, 65, 58, .9);
+      color: white;
+      font-weight: 900;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease, transform .2s ease;
+      text-align: center;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-8px);
+    }
+
+    @media (max-width: 860px) {
+      .app { padding: 10px; }
+      .topbar { grid-template-columns: repeat(3, 1fr); }
+      .playfield { grid-template-columns: 1fr; }
+      .battle-area { min-height: 260px; }
+      .board { max-width: min(94vw, 470px); gap: 5px; padding: 7px; }
+      .cell { border-radius: 14px; }
+      .base { width: 70px; height: 104px; font-size: 42px; }
+      .enemy { width: 54px; height: 54px; font-size: 30px; }
+    }
+
+    @media (max-width: 480px) {
+      .topbar { grid-template-columns: repeat(2, 1fr); }
+      .stat { min-height: 50px; font-size: 14px; }
+      .items { grid-template-columns: 1fr; }
+      .item-btn { min-height: 46px; grid-template-columns: auto 1fr auto; text-align: left; }
+      .result-grid { grid-template-columns: 1fr; }
+      .upgrade-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section id="startScreen" class="screen center-screen active">
+      <div class="hero">
+        <h1>萌果守卫战</h1>
+        <p class="subtitle">交换水果，打出连锁消除，把偷果子的坏坏小队挡在果园外面。</p>
+        <div class="btn-row">
+          <button class="primary-btn" id="startBtn">开始游戏</button>
+          <button class="secondary-btn" id="howBtn">玩法说明</button>
+          <button class="secondary-btn" id="openUpgradeBtn">升级果园</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="howScreen" class="screen center-screen">
+      <div class="panel">
+        <h2>怎么玩</h2>
+        <div class="rules">
+          <div class="rule"><b>🍓</b><span>点击相邻水果交换，三个一样连成横线或竖线就会消除。</span></div>
+          <div class="rule"><b>⚡</b><span>消除水果会攻击最靠近果园的敌人，连锁越多越爽。</span></div>
+          <div class="rule"><b>🏡</b><span>不要让敌人走到左侧果园基地，否则生命值会减少。</span></div>
+          <div class="rule"><b>🪙</b><span>通关、消除和击败敌人都能获得金币，金币可以升级能力。</span></div>
+        </div>
+        <div class="btn-row">
+          <button class="primary-btn" id="howStartBtn">马上守卫</button>
+          <button class="secondary-btn" data-screen="startScreen">返回</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="gameScreen" class="game-screen">
+      <div class="topbar">
+        <div class="stat"><small>关卡</small><span id="levelText">1</span></div>
+        <div class="stat"><small>分数</small><span id="scoreText">0</span></div>
+        <div class="stat"><small>金币</small><span id="goldText">0</span></div>
+        <div class="stat"><small>生命</small><span id="lifeText">10/10</span></div>
+        <div class="stat"><small>最高分</small><span id="bestText">0</span></div>
+        <button class="tiny-btn" id="pauseBtn">暂停</button>
+      </div>
+
+      <div class="playfield">
+        <div class="battle-area" id="battleArea">
+          <div class="lane"></div><div class="lane"></div><div class="lane"></div><div class="lane"></div>
+          <div class="base" id="base">🏡</div>
+          <div class="level-card" id="levelIntro">
+            <div class="level-bubble">
+              <h3 id="introTitle">第 1 关</h3>
+              <p id="introGoal">目标</p>
+              <p>守护果园开始啦！</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="board-area">
+          <div class="items">
+            <button class="item-btn" id="bombItem"><b>💣</b><span>炸弹果</span><small>x0</small></button>
+            <button class="item-btn" id="freezeItem"><b>🧊</b><span>冰冻果汁</span><small>x0</small></button>
+            <button class="item-btn" id="sunItem"><b>☀️</b><span>阳光糖果</span><small>x0</small></button>
+          </div>
+          <div class="board" id="board" aria-label="水果棋盘"></div>
+          <div class="board-footer">
+            <span>守护能量</span>
+            <div class="energy"><span id="energyBar"></span></div>
+            <span id="energyText">0%</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="upgradeScreen" class="screen center-screen">
+      <div class="panel">
+        <h2>果园升级</h2>
+        <p class="subtitle" style="margin-bottom:10px;">当前金币：<b id="upgradeGold">0</b> 🪙</p>
+        <div class="upgrade-list" id="upgradeList"></div>
+        <div class="btn-row">
+          <button class="primary-btn" id="upgradeStartBtn">继续闯关</button>
+          <button class="secondary-btn" data-screen="startScreen">返回首页</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal" id="resultModal">
+    <div class="modal-card">
+      <h2 id="resultTitle">通关成功！</h2>
+      <p id="resultMessage">果园今天也香香甜甜。</p>
+      <div class="result-grid">
+        <div><small>本关得分</small><span id="resultScore">0</span></div>
+        <div><small>获得金币</small><span id="resultGold">0</span></div>
+        <div><small>解锁奖励</small><span id="resultUnlock">无</span></div>
+      </div>
+      <div class="btn-row">
+        <button class="primary-btn" id="nextLevelBtn">下一关</button>
+        <button class="secondary-btn" id="retryBtn">重新挑战</button>
+        <button class="secondary-btn" id="resultUpgradeBtn">前往升级</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <div class="confetti" id="confetti"></div>
+
+  <script>
+    const SIZE = 6;
+    const STORAGE_KEY = "cuteFruitDefenseSave";
+    const fruits = [
+      { id: "strawberry", icon: "🍓", name: "草莓" },
+      { id: "orange", icon: "🍊", name: "橙子" },
+      { id: "watermelon", icon: "🍉", name: "西瓜" },
+      { id: "blueberry", icon: "🫐", name: "蓝莓" },
+      { id: "banana", icon: "🍌", name: "香蕉" }
+    ];
+
+    const enemyDefs = {
+      bug: { icon: "🐛", name: "小虫", hp: 30, speed: 3.9, damage: 1, gold: 8 },
+      bee: { icon: "🐝", name: "蜜蜂", hp: 20, speed: 6.8, damage: 1, gold: 10 },
+      snail: { icon: "🐌", name: "蜗牛", hp: 60, speed: 2.8, damage: 2, gold: 14 },
+      boss: { icon: "👾", name: "甜食小 Boss", hp: 200, speed: 2.35, damage: 3, gold: 60 }
+    };
+
+    const levels = [
+      { goal: "击退 3 只小虫", reward: 25, waves: [{ t: 500, type: "bug" }, { t: 2600, type: "bug" }, { t: 4700, type: "bug" }] },
+      { goal: "小虫变多了，击退 5 只", reward: 35, waves: makeWaves(["bug","bug","bug","bug","bug"], 500, 1500) },
+      { goal: "小虫和蜜蜂一起偷袭", reward: 45, unlock: "冰冻果汁 +1", waves: makeWaves(["bug","bee","bug","bee","bug","bug"], 450, 1250) },
+      { goal: "蜗牛登场，血量更厚", reward: 55, waves: makeWaves(["snail","bug","bug","snail","bug"], 450, 1500) },
+      { goal: "厚血敌人组成小队", reward: 65, unlock: "炸弹果 +1", waves: makeWaves(["snail","bug","snail","bee","snail","bug"], 450, 1300) },
+      { goal: "蜜蜂速度很快，注意连消", reward: 78, waves: makeWaves(["bee","bee","bug","bee","snail","bee","bug"], 400, 1050) },
+      { goal: "高速队伍连续进攻", reward: 90, unlock: "阳光糖果 +1", waves: makeWaves(["bee","bug","bee","bee","snail","bee","bug","bee"], 350, 950) },
+      { goal: "多个敌人同时压上来", reward: 105, waves: makeWaves(["bug","bee","snail","bug","bee","snail","bee","bug","bug"], 280, 760) },
+      { goal: "最后的混合大冲锋", reward: 120, waves: makeWaves(["snail","bee","bug","bee","snail","bee","bug","snail","bee","bug"], 250, 680) },
+      { goal: "击败甜食小 Boss", reward: 180, unlock: "三种道具各 +1", waves: makeWaves(["bug","bee","snail","boss","bee","bug","snail"], 350, 1200) }
+    ];
+
+    const upgradeDefs = [
+      { id: "life", name: "果园生命值上限", desc: lvl => `生命上限 +${lvl * 2}，当前 ${getMaxLife()} 点` },
+      { id: "attack", name: "普通攻击伤害", desc: lvl => `普通伤害 +${lvl * 4}，当前 ${getAttack()} 点` },
+      { id: "slow", name: "减速效果", desc: lvl => `蓝莓减速更久更强，当前 ${Math.round(getSlowPower() * 100)}%` },
+      { id: "blast", name: "爆炸范围", desc: lvl => `橙子爆炸伤害 +${lvl * 5}，当前范围 ${Math.min(4, 1 + lvl)} 个敌人` },
+      { id: "energy", name: "初始能量", desc: lvl => `开局能量 +${lvl * 12}%，能更快触发守护爆发` }
+    ];
+
+    function makeWaves(types, start, gap) {
+      return types.map((type, index) => ({ t: start + index * gap, type }));
+    }
+
+    function defaultSave() {
+      return {
+        highestLevel: 1,
+        gold: 0,
+        highScore: 0,
+        upgrades: { life: 0, attack: 0, slow: 0, blast: 0, energy: 0 },
+        items: { bomb: 1, freeze: 1, sun: 1 }
+      };
+    }
+
+    let save = loadSave();
+    let state = null;
+    let rafId = null;
+    let lastFrame = 0;
+    let toastTimer = null;
+
+    const $ = id => document.getElementById(id);
+    const screens = ["startScreen", "howScreen", "gameScreen", "upgradeScreen"];
+    const boardEl = $("board");
+    const battleEl = $("battleArea");
+
+    function loadSave() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : {};
+        return {
+          ...defaultSave(),
+          ...parsed,
+          upgrades: { ...defaultSave().upgrades, ...(parsed.upgrades || {}) },
+          items: { ...defaultSave().items, ...(parsed.items || {}) }
+        };
+      } catch {
+        return defaultSave();
+      }
+    }
+
+    function persist() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(save));
+    }
+
+    function switchScreen(id) {
+      screens.forEach(name => {
+        const el = $(name);
+        el.classList.toggle("active", name === id);
+      });
+      if (id !== "gameScreen") stopLoop();
+      if (id === "upgradeScreen") renderUpgrades();
+    }
+
+    function getMaxLife() { return 10 + save.upgrades.life * 2; }
+    function getAttack() { return 10 + save.upgrades.attack * 4; }
+    function getSlowPower() { return Math.min(.78, .45 + save.upgrades.slow * .08); }
+    function upgradeCost(id) { return Math.round(50 * Math.pow(1.5, save.upgrades[id])); }
+
+    function createBoard() {
+      const board = Array.from({ length: SIZE }, () => Array(SIZE).fill(null));
+      for (let r = 0; r < SIZE; r++) {
+        for (let c = 0; c < SIZE; c++) {
+          let pick;
+          do {
+            pick = randomFruit().id;
+          } while (
+            (c >= 2 && board[r][c - 1] === pick && board[r][c - 2] === pick) ||
+            (r >= 2 && board[r - 1][c] === pick && board[r - 2][c] === pick)
+          );
+          board[r][c] = pick;
+        }
+      }
+      return board;
+    }
+
+    function randomFruit() {
+      return fruits[Math.floor(Math.random() * fruits.length)];
+    }
+
+    function fruitIcon(id) {
+      return fruits.find(f => f.id === id).icon;
+    }
+
+    function startLevel(level = save.highestLevel) {
+      const index = Math.max(1, Math.min(10, level));
+      state = {
+        level: index,
+        board: createBoard(),
+        selected: null,
+        busy: false,
+        score: 0,
+        levelGold: 0,
+        life: getMaxLife(),
+        maxLife: getMaxLife(),
+        energy: Math.min(100, save.upgrades.energy * 12),
+        enemies: [],
+        spawned: 0,
+        elapsed: 0,
+        paused: false,
+        over: false,
+        hitIds: new Set(),
+        freezeUntil: 0,
+        levelStartedAt: performance.now()
+      };
+      switchScreen("gameScreen");
+      $("resultModal").classList.remove("show");
+      renderBoard();
+      renderHUD();
+      renderEnemies();
+      showLevelIntro();
+      startLoop();
+    }
+
+    function showLevelIntro() {
+      $("introTitle").textContent = `第 ${state.level} 关`;
+      $("introGoal").textContent = levels[state.level - 1].goal;
+      $("levelIntro").classList.add("show");
+      setTimeout(() => $("levelIntro").classList.remove("show"), 1300);
+    }
+
+    function startLoop() {
+      stopLoop();
+      lastFrame = performance.now();
+      rafId = requestAnimationFrame(loop);
+    }
+
+    function stopLoop() {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+
+    function loop(now) {
+      if (!state || state.over) return;
+      const dt = Math.min(60, now - lastFrame);
+      lastFrame = now;
+      if (!state.paused) updateGame(dt, now);
+      rafId = requestAnimationFrame(loop);
+    }
+
+    function updateGame(dt, now) {
+      state.elapsed += dt;
+      const level = levels[state.level - 1];
+      while (state.spawned < level.waves.length && state.elapsed >= level.waves[state.spawned].t) {
+        spawnEnemy(level.waves[state.spawned].type);
+        state.spawned++;
+      }
+
+      const frozen = now < state.freezeUntil;
+      state.enemies.forEach(enemy => {
+        if (frozen) return;
+        const slowFactor = enemy.slowUntil > now ? (1 - enemy.slowPower) : 1;
+        enemy.x -= enemy.speed * slowFactor * dt / 1000;
+      });
+
+      const attackers = state.enemies.filter(enemy => enemy.x <= 10);
+      attackers.forEach(enemy => {
+        state.life -= enemy.damage;
+        popAt(battleEl, `-${enemy.damage} 生命`, 70, 95, "#ff5872");
+        $("base").classList.remove("damaged");
+        void $("base").offsetWidth;
+        $("base").classList.add("damaged");
+      });
+      if (attackers.length) {
+        state.enemies = state.enemies.filter(enemy => enemy.x > 10);
+        if (state.life <= 0) return failLevel();
+      }
+
+      if (state.spawned >= level.waves.length && state.enemies.length === 0) {
+        return winLevel();
+      }
+
+      renderEnemies();
+      renderHUD();
+    }
+
+    function spawnEnemy(type) {
+      const def = enemyDefs[type];
+      const levelScale = 1 + (state.level - 1) * .08;
+      const hpScale = type === "boss" ? 1 + (state.level - 1) * .03 : levelScale;
+      const lane = Math.floor(Math.random() * 4);
+      const id = `${type}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      state.enemies.push({
+        id,
+        type,
+        icon: def.icon,
+        name: def.name,
+        hp: Math.round(def.hp * hpScale),
+        maxHp: Math.round(def.hp * hpScale),
+        speed: def.speed * (1 + Math.max(0, state.level - 4) * .035),
+        damage: def.damage,
+        gold: def.gold,
+        x: 96 + Math.random() * 6,
+        lane,
+        slowUntil: 0,
+        slowPower: 0
+      });
+    }
+
+    function renderBoard() {
+      boardEl.innerHTML = "";
+      state.board.flat().forEach((fruit, index) => {
+        const r = Math.floor(index / SIZE);
+        const c = index % SIZE;
+        const cell = document.createElement("button");
+        cell.className = "cell";
+        cell.type = "button";
+        cell.dataset.r = r;
+        cell.dataset.c = c;
+        cell.textContent = fruit ? fruitIcon(fruit) : "";
+        if (state.selected && state.selected.r === r && state.selected.c === c) cell.classList.add("selected");
+        cell.addEventListener("click", () => onCellClick(r, c, cell));
+        boardEl.appendChild(cell);
+      });
+    }
+
+    function onCellClick(r, c, cellEl) {
+      if (!state || state.busy || state.paused || state.over) return;
+      const previous = state.selected;
+      if (!previous) {
+        state.selected = { r, c };
+        renderBoard();
+        return;
+      }
+      if (previous.r === r && previous.c === c) {
+        state.selected = null;
+        renderBoard();
+        return;
+      }
+      if (!isAdjacent(previous, { r, c })) {
+        state.selected = { r, c };
+        renderBoard();
+        return;
+      }
+      swap(previous, { r, c });
+      state.selected = null;
+      const groups = findMatches(state.board);
+      if (!groups.length) {
+        swap(previous, { r, c });
+        cellEl.classList.add("invalid");
+        showToast("要换出三个一样才行哦");
+        renderBoard();
+        return;
+      }
+      resolveMatches();
+    }
+
+    function isAdjacent(a, b) {
+      return Math.abs(a.r - b.r) + Math.abs(a.c - b.c) === 1;
+    }
+
+    function swap(a, b) {
+      const tmp = state.board[a.r][a.c];
+      state.board[a.r][a.c] = state.board[b.r][b.c];
+      state.board[b.r][b.c] = tmp;
+    }
+
+    async function resolveMatches() {
+      state.busy = true;
+      let chain = 0;
+      let groups = findMatches(state.board);
+      while (groups.length && !state.over) {
+        chain++;
+        markMatches(groups);
+        await wait(260);
+        const cells = new Set();
+        groups.forEach(group => group.cells.forEach(cell => cells.add(`${cell.r},${cell.c}`)));
+        groups.forEach(group => rewardMatch(group, chain));
+        cells.forEach(key => {
+          const [r, c] = key.split(",").map(Number);
+          state.board[r][c] = null;
+        });
+        collapseBoard();
+        renderBoard();
+        renderHUD();
+        await wait(170);
+        groups = findMatches(state.board);
+      }
+      state.busy = false;
+      renderBoard();
+    }
+
+    function findMatches(board) {
+      const groups = [];
+      for (let r = 0; r < SIZE; r++) {
+        let start = 0;
+        for (let c = 1; c <= SIZE; c++) {
+          if (c < SIZE && board[r][c] && board[r][c] === board[r][start]) continue;
+          if (board[r][start] && c - start >= 3) {
+            groups.push({ type: board[r][start], cells: range(start, c).map(col => ({ r, c: col })) });
+          }
+          start = c;
+        }
+      }
+      for (let c = 0; c < SIZE; c++) {
+        let start = 0;
+        for (let r = 1; r <= SIZE; r++) {
+          if (r < SIZE && board[r][c] && board[r][c] === board[start][c]) continue;
+          if (board[start][c] && r - start >= 3) {
+            groups.push({ type: board[start][c], cells: range(start, r).map(row => ({ r: row, c })) });
+          }
+          start = r;
+        }
+      }
+      return groups;
+    }
+
+    function range(start, end) {
+      return Array.from({ length: end - start }, (_, i) => start + i);
+    }
+
+    function markMatches(groups) {
+      const keys = new Set();
+      groups.forEach(group => group.cells.forEach(cell => keys.add(`${cell.r},${cell.c}`)));
+      keys.forEach(key => {
+        const cell = boardEl.querySelector(`[data-r="${key.split(",")[0]}"][data-c="${key.split(",")[1]}"]`);
+        if (cell) cell.classList.add("matching");
+      });
+    }
+
+    function collapseBoard() {
+      for (let c = 0; c < SIZE; c++) {
+        const stack = [];
+        for (let r = SIZE - 1; r >= 0; r--) {
+          if (state.board[r][c]) stack.push(state.board[r][c]);
+        }
+        for (let r = SIZE - 1; r >= 0; r--) {
+          state.board[r][c] = stack.shift() || randomFruit().id;
+        }
+      }
+    }
+
+    function rewardMatch(group, chain) {
+      const len = group.cells.length;
+      const baseScore = len === 3 ? 30 : len === 4 ? 60 : 100;
+      const scoreGain = baseScore + (chain - 1) * 25;
+      const goldGain = Math.max(1, Math.floor(len / 2)) + (group.type === "banana" ? 3 + save.upgrades.blast : 0);
+      state.score += scoreGain;
+      state.levelGold += goldGain;
+      save.gold += goldGain;
+      state.energy = Math.min(100, state.energy + len * 5 + chain * 2);
+      popAt(boardEl, `+${scoreGain}`, 50, 50, "#fb6179");
+      if (chain > 1) showToast(`连锁 ${chain}！+${scoreGain}`);
+      applyFruitAttack(group.type, len, chain);
+      if (state.energy >= 100) {
+        state.energy = 0;
+        damageAll(24 + getAttack(), "守护爆发");
+        popAt(battleEl, "守护爆发！", 55, 45, "#3d91ff");
+      }
+      save.highScore = Math.max(save.highScore, state.score);
+      persist();
+    }
+
+    function applyFruitAttack(type, len, chain) {
+      const base = getAttack();
+      if (type === "strawberry") damageTarget(base + len * 2 + chain * 2, "草莓攻击");
+      if (type === "orange") {
+        const count = Math.min(state.enemies.length, 1 + save.upgrades.blast);
+        closestEnemies(count).forEach(enemy => hitEnemy(enemy, Math.round(base * .8 + len * 3 + save.upgrades.blast * 5), "橙子爆炸"));
+      }
+      if (type === "watermelon") damageTarget(base * 2 + len * 4 + chain * 3, "西瓜重击");
+      if (type === "blueberry") {
+        const target = closestEnemy();
+        if (target) {
+          target.slowUntil = performance.now() + 2200 + save.upgrades.slow * 450;
+          target.slowPower = getSlowPower();
+          hitEnemy(target, Math.round(base * .65 + len * 2), "蓝莓减速");
+        }
+      }
+      if (type === "banana") {
+        damageTarget(Math.round(base * .75 + len * 2), "香蕉弹射");
+        const bonus = 2 + len;
+        save.gold += bonus;
+        state.levelGold += bonus;
+        popAt(boardEl, `+${bonus} 金币`, 62, 42, "#d28a00");
+      }
+      cleanupDefeated();
+      renderEnemies();
+    }
+
+    function closestEnemy() {
+      return [...state.enemies].sort((a, b) => a.x - b.x)[0];
+    }
+
+    function closestEnemies(count) {
+      return [...state.enemies].sort((a, b) => a.x - b.x).slice(0, count);
+    }
+
+    function damageTarget(amount, label) {
+      const target = closestEnemy();
+      if (target) hitEnemy(target, amount, label);
+    }
+
+    function damageAll(amount, label) {
+      state.enemies.forEach(enemy => hitEnemy(enemy, amount, label));
+      cleanupDefeated();
+      renderEnemies();
+    }
+
+    function hitEnemy(enemy, amount, label) {
+      enemy.hp -= amount;
+      state.hitIds.add(enemy.id);
+      popAt(battleEl, `-${amount}`, enemy.x, 20 + enemy.lane * 22, "#ff5872");
+      if (label) state.score += 2;
+    }
+
+    function cleanupDefeated() {
+      const defeated = state.enemies.filter(enemy => enemy.hp <= 0);
+      defeated.forEach(enemy => {
+        save.gold += enemy.gold;
+        state.levelGold += enemy.gold;
+        state.score += enemy.type === "boss" ? 300 : 50;
+        popAt(battleEl, `+${enemy.gold} 金币`, enemy.x, 25 + enemy.lane * 22, "#d28a00");
+      });
+      if (defeated.length) {
+        state.enemies = state.enemies.filter(enemy => enemy.hp > 0);
+        save.highScore = Math.max(save.highScore, state.score);
+        persist();
+      }
+    }
+
+    function renderEnemies() {
+      battleEl.querySelectorAll(".enemy").forEach(el => el.remove());
+      if (!state) return;
+      const frozen = performance.now() < state.freezeUntil;
+      state.enemies.forEach(enemy => {
+        const el = document.createElement("div");
+        el.className = "enemy";
+        if (state.hitIds.has(enemy.id)) el.classList.add("hit");
+        if (frozen || enemy.slowUntil > performance.now()) el.classList.add("frozen");
+        el.style.left = `${enemy.x}%`;
+        el.style.top = `${12.5 + enemy.lane * 25}%`;
+        el.style.transform = "translate(-50%, -50%)";
+        el.innerHTML = `<span class="enemy-label">${enemy.name}</span>${enemy.icon}<div class="hpbar"><span style="width:${Math.max(0, enemy.hp / enemy.maxHp * 100)}%"></span></div>`;
+        battleEl.appendChild(el);
+      });
+      if (state.hitIds.size) {
+        const ids = [...state.hitIds];
+        setTimeout(() => ids.forEach(id => state && state.hitIds.delete(id)), 280);
+      }
+    }
+
+    function renderHUD() {
+      if (!state) {
+        $("goldText").textContent = save.gold;
+        $("bestText").textContent = save.highScore;
+        return;
+      }
+      $("levelText").textContent = state.level;
+      $("scoreText").textContent = state.score;
+      $("goldText").textContent = save.gold;
+      $("lifeText").textContent = `${Math.max(0, state.life)}/${state.maxLife}`;
+      $("bestText").textContent = save.highScore;
+      $("energyBar").style.width = `${state.energy}%`;
+      $("energyText").textContent = `${Math.round(state.energy)}%`;
+      $("bombItem").querySelector("small").textContent = `x${save.items.bomb}`;
+      $("freezeItem").querySelector("small").textContent = `x${save.items.freeze}`;
+      $("sunItem").querySelector("small").textContent = `x${save.items.sun}`;
+      $("bombItem").disabled = save.items.bomb <= 0 || state.paused;
+      $("freezeItem").disabled = save.items.freeze <= 0 || state.paused;
+      $("sunItem").disabled = save.items.sun <= 0 || state.paused;
+    }
+
+    function useItem(type) {
+      if (!state || state.paused || state.over || state.busy || save.items[type] <= 0) return;
+      save.items[type]--;
+      if (type === "bomb") {
+        const centerR = 2 + Math.floor(Math.random() * 2);
+        const centerC = 2 + Math.floor(Math.random() * 2);
+        const cells = [];
+        for (let r = centerR - 1; r <= centerR + 1; r++) {
+          for (let c = centerC - 1; c <= centerC + 1; c++) {
+            if (r >= 0 && r < SIZE && c >= 0 && c < SIZE) cells.push({ r, c });
+          }
+        }
+        cells.forEach(cell => state.board[cell.r][cell.c] = null);
+        collapseBoard();
+        damageAll(35 + save.upgrades.blast * 8, "炸弹果");
+        state.score += 80;
+        popAt(boardEl, "轰！+80", 50, 50, "#fb6179");
+        renderBoard();
+      }
+      if (type === "freeze") {
+        state.freezeUntil = performance.now() + 3000;
+        popAt(battleEl, "全体冰冻 3 秒", 55, 45, "#3d91ff");
+      }
+      if (type === "sun") {
+        const gold = 35 + save.upgrades.energy * 8;
+        save.gold += gold;
+        state.levelGold += gold;
+        state.energy = Math.min(100, state.energy + 55);
+        popAt(boardEl, `+${gold} 金币`, 50, 42, "#d28a00");
+      }
+      persist();
+      renderHUD();
+      renderEnemies();
+    }
+
+    function winLevel() {
+      state.over = true;
+      stopLoop();
+      const level = levels[state.level - 1];
+      let unlock = level.unlock || "无";
+      save.gold += level.reward;
+      state.levelGold += level.reward;
+      save.highestLevel = Math.max(save.highestLevel, Math.min(10, state.level + 1));
+      save.highScore = Math.max(save.highScore, state.score);
+      if (state.level === 3) save.items.freeze++;
+      if (state.level === 5) save.items.bomb++;
+      if (state.level === 7) save.items.sun++;
+      if (state.level === 10) {
+        save.items.bomb++;
+        save.items.freeze++;
+        save.items.sun++;
+      }
+      persist();
+      celebrate();
+      showResult(true, unlock);
+    }
+
+    function failLevel() {
+      state.over = true;
+      stopLoop();
+      save.highScore = Math.max(save.highScore, state.score);
+      persist();
+      showResult(false, "再试一次，果园需要你！");
+    }
+
+    function showResult(won, unlockText) {
+      $("resultTitle").textContent = won ? "通关成功！" : "果园告急！";
+      $("resultMessage").textContent = won ? "坏坏小队被赶跑啦，水果香气守住了。" : "再试一次，果园需要你！";
+      $("resultScore").textContent = state.score;
+      $("resultGold").textContent = state.levelGold;
+      $("resultUnlock").textContent = unlockText || "无";
+      $("nextLevelBtn").style.display = won ? "inline-block" : "none";
+      $("retryBtn").style.display = won ? "none" : "inline-block";
+      $("resultModal").classList.add("show");
+    }
+
+    function renderUpgrades() {
+      $("upgradeGold").textContent = save.gold;
+      $("upgradeList").innerHTML = "";
+      upgradeDefs.forEach(def => {
+        const lvl = save.upgrades[def.id];
+        const cost = upgradeCost(def.id);
+        const row = document.createElement("div");
+        row.className = "upgrade-row";
+        row.innerHTML = `
+          <div>
+            <strong>${def.name} Lv.${lvl}</strong>
+            <span>${def.desc(lvl)}</span>
+          </div>
+          <button class="upgrade-btn" ${save.gold < cost ? "disabled" : ""}>${cost} 🪙</button>
+        `;
+        row.querySelector("button").addEventListener("click", () => buyUpgrade(def.id));
+        $("upgradeList").appendChild(row);
+      });
+    }
+
+    function buyUpgrade(id) {
+      const cost = upgradeCost(id);
+      if (save.gold < cost) return showToast("金币还不够，先去守一关吧");
+      save.gold -= cost;
+      save.upgrades[id]++;
+      persist();
+      renderUpgrades();
+      showToast("升级成功！");
+    }
+
+    function wait(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function popAt(container, text, xPercent, yPercent, color) {
+      const rect = container.getBoundingClientRect();
+      const el = document.createElement("div");
+      el.className = "float-text";
+      el.textContent = text;
+      el.style.left = `${rect.left + rect.width * xPercent / 100}px`;
+      el.style.top = `${rect.top + rect.height * yPercent / 100}px`;
+      el.style.color = color;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 900);
+    }
+
+    function showToast(text) {
+      clearTimeout(toastTimer);
+      $("toast").textContent = text;
+      $("toast").classList.add("show");
+      toastTimer = setTimeout(() => $("toast").classList.remove("show"), 1400);
+    }
+
+    function celebrate() {
+      const confetti = $("confetti");
+      confetti.innerHTML = "";
+      const bits = ["🍓", "🍊", "🍉", "🫐", "🍌", "✨"];
+      for (let i = 0; i < 34; i++) {
+        const bit = document.createElement("i");
+        bit.textContent = bits[Math.floor(Math.random() * bits.length)];
+        bit.style.left = `${Math.random() * 100}%`;
+        bit.style.animationDelay = `${Math.random() * .45}s`;
+        bit.style.fontSize = `${18 + Math.random() * 20}px`;
+        confetti.appendChild(bit);
+      }
+      setTimeout(() => confetti.innerHTML = "", 2300);
+    }
+
+    document.addEventListener("click", event => {
+      const screen = event.target.dataset.screen;
+      if (screen) switchScreen(screen);
+    });
+
+    $("startBtn").addEventListener("click", () => startLevel(save.highestLevel));
+    $("howBtn").addEventListener("click", () => switchScreen("howScreen"));
+    $("howStartBtn").addEventListener("click", () => startLevel(save.highestLevel));
+    $("openUpgradeBtn").addEventListener("click", () => switchScreen("upgradeScreen"));
+    $("upgradeStartBtn").addEventListener("click", () => startLevel(save.highestLevel));
+    $("resultUpgradeBtn").addEventListener("click", () => {
+      $("resultModal").classList.remove("show");
+      switchScreen("upgradeScreen");
+    });
+    $("nextLevelBtn").addEventListener("click", () => startLevel(Math.min(10, state.level + 1)));
+    $("retryBtn").addEventListener("click", () => startLevel(state.level));
+    $("pauseBtn").addEventListener("click", () => {
+      if (!state || state.over) return;
+      state.paused = !state.paused;
+      $("pauseBtn").textContent = state.paused ? "继续" : "暂停";
+      showToast(state.paused ? "已暂停" : "继续守护！");
+      renderHUD();
+    });
+    $("bombItem").addEventListener("click", () => useItem("bomb"));
+    $("freezeItem").addEventListener("click", () => useItem("freeze"));
+    $("sunItem").addEventListener("click", () => useItem("sun"));
+
+    renderHUD();
+  </script>
+</body>
+</html>
